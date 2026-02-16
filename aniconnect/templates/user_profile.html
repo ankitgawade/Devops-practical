@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        /* Custom styles for the profile page */
+         body{
+      background-color: #121212; 
+      color: #fff; 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+    }
+        .profile-bg {
+            background-image: url( {{profile.background_image_url}} );
+            background-size: cover;
+            background-position: center;
+            height: 500px; /* Adjust as needed */
+            position: relative;
+        }
+        .profile-img {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 200px; /* Adjust as needed */
+            height: 200px; /* Adjust as needed */
+            border: 2px solid #fff;
+            z-index: 999;
+            background-color: #fff;
+        }
+        .profile-description {
+            padding: 20px;
+        }  
+        .status-line {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .status {
+      height: 10px;
+    }
+    .watched { background-color: #ff6384; }
+    .currently-watching { background-color: #36a2eb; }
+    .plan-to-watch { background-color: #ffce56; }
+    .dropped { background-color: #4bc0c0; }
+    #chart-container {
+      width: 400px;
+      height: 400px;
+      position: relative;
+      margin: auto;
+      margin-left: -50px;
+    }
+    .legend {
+      list-style-type: none;
+      padding: 0;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
+
+.progress {
+    height: 20px; /* Adjust height as needed */
+    margin-bottom: 20px; /* Add spacing as needed */
+}
+
+.progress-bar {
+    border-radius: 5px; /* Add rounded corners */
+}
+.bg-light-green {
+    background-color: #3bf00e; /* Adjust the color to your desired lighter shade of green */
+}
+    </style>
+    </head>
+  <body>
+    {% include 'navbar.html' %}
+    <div class="">
+        <div class="row">
+            <div class="col-md-11 mx-auto">
+                <div class="profile-bg img-fluid">
+                    <img src="{{profile.profile_image_url}}" alt="Profile Image" class="profile-img rounded">
+                    
+                </div>
+                <div class="profile-description mt-3">
+                    <h2>{{ user.username }}</h2>
+                    <p> {{profile.description}} </p>
+                    
+                    <a class="btn btn-danger" href="{% url 'edit_profile' %}">Edit profile</a>
+                    
+                </div>
+                <div class="anime-stats">
+                    <div class="row" style="padding-top: 50px;">
+                      {% if percent_stat %}
+                        <div class="col-md-6 mr-md-3">
+                            <div class="box">
+                                <div class="container ">
+                                    <h3>Anime status</h3>
+                                    <!-- Your status line with widths based on percentages -->
+                                    <div class="status-line">
+                                      {% for key,value in percent_stat.items %}
+                                      {%if key == "watched" %}
+                                      <div class="status watched" style="width:{{value}}%;"></div>
+                                      {% elif key == 'currently-watching' %}
+                                      <div class="status currently-watching" style="width:{{value}}%;"></div>
+                                      {% elif key == 'plan_to_watch' %}
+                                      <div class="status plan-to-watch" style="width:{{value}}%;"></div>
+                                      {% elif key == 'dropped' %}
+                                      <div class="status dropped" style="width:{{value}}%;"></div>
+                                      {% endif %}
+                                      {% endfor %}
+                                    </div>
+                                    <ul class="status-list">
+                                      {% for key,value in anime_stat.items %}
+                                      {%if key == "watched" %}
+                                      <li  style="color:#ff6384;" >{{ key }}: {{ value }}</li>
+                                      {% elif key == 'currently-watching' %}
+                                      <li  style="color:#36a2eb;" >{{ key }}: {{ value }}</li>
+                                      {% elif key == 'plan_to_watch' %}
+                                      <li  style="color:#ffce56;" >{{ key }}: {{ value }}</li>
+                                      {% elif key == 'dropped' %}
+                                      <li  style="color:#4BC0C0;" >{{ key }}: {{ value }}</li>
+                                      {% endif %}
+                                      {% endfor %}
+                                  </ul>
+                                  </div>
+                                <!-- Add more stats here -->
+                            </div>
+                        </div>
+                        {% else %}
+                          <div class="col-md-6 mr-md-3">
+                            <div class="box">
+                                <div class="container ">
+                                    <h3>Anime status</h3>
+                                    <!-- Your status line with widths based on percentages -->
+                                    <div class="status-line">
+                                      <div style="width:100%; color: #fff;"></div>
+                                    </div>
+                                    <ul class="status-list">
+                                      {% for key,value in anime_stat.items %}
+                                      {%if key == "watched" %}
+                                      <li  style="color:#ff6384;" >{{ key }}: {{ value }}</li>
+                                      {% elif key == 'currently-watching' %}
+                                      <li  style="color:#36a2eb;" >{{ key }}: {{ value }}</li>
+                                      {% elif key == 'plan_to_watch' %}
+                                      <li  style="color:#ffce56;" >{{ key }}: {{ value }}</li>
+                                      {% elif key == 'dropped' %}
+                                      <li  style="color:#4BC0C0;" >{{ key }}: {{ value }}</li>
+                                      {% endif %}
+                                      {% endfor %}
+                                  </ul>
+                                  </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% if genres_data %}    
+                        <div class="col-md-6">
+                            <div class="box">
+                                <h3>Anime Categories</h3>
+                                <div class="container";>
+                                    <canvas id="chart-container" style="padding: 10px;"></canvas>
+                                   
+                                  </div>
+                            </div>
+                        </div>
+                        {% else %}
+                    <!-- Displa y message if the list is empty -->
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="box">
+                          <h3>Anime Categories</h3>
+                        <p>User has not watched any anime.</p>
+                        </div>
+                      </div>
+                    </div>
+                    {% endif %}
+              
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        {% if genres_data %}
+        var yValues = JSON.parse('{{ yValues | safe }}');
+        var xlab = {{ xlab | safe }};
+        var bgColor = {{ bgColor | safe }};
+    
+        // Create pie chart
+        const ctx = document.getElementById('chart-container').getContext('2d');
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+    labels: xlab,
+    datasets: [{
+      backgroundColor: bgColor,
+      data: yValues
+    }]
+  },
+          options: {
+            plugins: {
+              legend: {
+                display: true,
+              }
+            }
+          }
+        });
+    
+        // Update legend with genre names
+        const legendItems = document.querySelectorAll('.legend-item');
+        genresData.labels.forEach((label, index) => {
+          legendItems[index].innerHTML = `<span class="legend-color" style="background-color: ${genresData.datasets[0].backgroundColor[index]};"></span> ${label}`;
+        });
+        {% endif %}
+      </script>
+</body>
+</html>

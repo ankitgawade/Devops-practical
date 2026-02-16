@@ -1,0 +1,30 @@
+[
+{
+    "model": "aniconnect.category",
+    "pk": 1,
+    "fields": {
+        "title": "Anime"
+    }
+},
+{
+    "model": "aniconnect.category",
+    "pk": 2,
+    "fields": {
+        "title": "Manga"
+    }
+},
+{
+    "model": "aniconnect.category",
+    "pk": 3,
+    "fields": {
+        "title": "General Discussion"
+    }
+},
+{
+    "model": "aniconnect.category",
+    "pk": 4,
+    "fields": {
+        "title": "Recommendations"
+    }
+}
+]

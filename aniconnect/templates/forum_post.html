@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>anime website</title>
+    {% load static%}
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        input,select{
+        color: #fff;
+        background-color: #262626;
+        border: 1px solid #ced4da; /* Border color */
+            border-radius: 5px;
+      }
+    body{
+      background-color: #121212; 
+      color: #fff; 
+      font-family: Arial, sans-serif; 
+      margin: 0; 
+    }
+   .post-container {
+        padding: 20px;
+    }
+    .comment-container {
+            margin-top: 20px;
+    }
+    .comment-card {
+        margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px; /* Adjust the height as needed */
+            padding: 10px;
+            font-size: 25px;
+            font-family: Arial, sans-serif;
+            border: 1px solid #ced4da; /* Border color */
+            border-radius: 5px; /* Rounded corners */
+            background-color: #262626; /* Background color */
+            resize: vertical; /* Allow vertical resizing */
+            color: #fff;
+        }
+    </style>
+  </head>
+  <body>
+    {% include 'navbar.html' %}
+    <div class="container post-container">
+        <div class="card" style="background-color: #1C1C1C;color: #fff;">
+            <div class="card-body">
+                <div class="card-title">
+                    <h1>{{ post.title }}</h1>
+                    
+                </div>
+                <p>{{ post.content }}</p>
+                <p>Author: {{ post.author }}</p>
+                <small style="color:#fff">Likes: {{ post.likes.count }}</small>
+                <small style="color:#fff">Dislikes: {{ post.dislikes.count }}</small><br><br>
+                <div class="like-dislike-comment">
+
+                    <form action="{% url 'like_post' post.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Like</button>
+                    </form>
+    
+                    <form action="{% url 'dislike_post' post.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Dislike</button>
+                    </form>
+                    <a class="comment-btn btn btn-danger" style=" display: inline;">Comment on Post</a>
+                
+    
+                <div class="comment-container" style="display: none;">
+                    <div class="col-md-4">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="custom-textarea">
+                                {{ comment_form.content.label }}
+                            </div>
+                            {{ comment_form.content }}
+                            <button type="submit" name="comment-submit" class="btn btn-danger">Submit</button><br><br>
+                        </form>
+                    </div>
+                </div>
+                <button id="toggle-report-form" style="display: inline;" class="btn btn-danger">Toggle Report Form</button>
+                <div class="report-container" style="display: none;">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ post_report_form.as_p }}
+                        <input type="hidden" name="post_id" value="{{ post.id }}">
+                        <button type="submit" name="report-post-submit" class="btn btn-danger">Report forum</button>
+                    </form>
+                </div>
+            </div>
+                
+            </div>
+        </div>
+   
+    
+        <div class="comment-container">
+            <h2>Comments</h2>
+            <!-- Loop through comments -->
+            {% for comment in Comments %}
+            {% with id=comment.id %}
+            <div class="card comment-card" style="background-color: #1C1C1C;color:#fff;">
+                <div class="card-body">
+                    <p class="card-text">{{ comment.content }}</p>
+                    <p class="card-text">Author: {{ comment.author }}</p>
+                    
+                    <form id="report-form-comment-{{ comment.id }}" method="POST" style="display: none;">
+                        {% csrf_token %}
+                        {{ comment_report_form.as_p }}
+                        <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                        <button type="submit" name="report-comment-submit" class="btn btn-danger">Report comment</button><br><br>
+                    </form>
+                    
+                    <!-- Button to toggle the report form for the comment -->
+                    <button class="report-btn btn btn-danger" onclick="toggleReportForm('comment', {{ comment.id }})" 
+                    style="display: inline; margin-left: 10px;">Report</button>
+
+                    <button class="reply-btn btn btn-danger" style="display: inline; margin-left: 10px;">reply</button>
+                    
+                    <div class="reply-container" style="display: none;">
+                        <div class="col-md-4">
+                            <form method="post">
+                                {% csrf_token %}
+                                {{ reply_form.as_p }}
+                                <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                                <button type="submit" name="reply-submit" class="btn btn-danger">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                <h4>Replies</h4>
+                {% for kreply, value_list in  comment_replies.items %}
+                </ul>{% if id == kreply %}
+                {% for reply in value_list %}
+                <div class="card " style="background-color:#262626 ;margin: 10px; color: #fff;">
+                    <div class="card-body">
+                        <p class="card-text">{{ reply.content }}</p>
+                        <p class="card-text">Author: {{ reply.author }}</p>
+                        <!-- Displaying the author of the reply -->
+                        <form id="report-form-reply-{{ reply.id }}" method="POST" style="display: none;">
+                            {% csrf_token %}
+                            {{ reply_report_form.as_p }}
+                            <input type="hidden" name="reply_id" value="{{ reply.id }}">
+                            <button type="submit" name="report-reply-submit" class="btn btn-danger">Report reply</button><br><br>
+                        </form>
+                        
+                        <!-- Button to toggle the report form for the reply -->
+                        <button class="report-btn btn btn-danger" onclick="toggleReportForm('reply', {{ reply.id }})"
+                         style="display: inline; margin-left: 10px;">Report</button>
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endfor %}
+                
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                </div></div>
+            
+    </body>
+    </html>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+    $('.comment-btn').click(function() {
+        $(this).closest('.card-body').find('.comment-container').toggle(); // Toggle visibility of the comment container
+    });
+});
+        $(document).ready(function() {
+            $('.reply-btn').click(function() {
+                $(this).siblings('.reply-container').toggle(); // Toggle visibility of the reply form
+            });
+        });
+        document.getElementById("toggle-report-form").addEventListener("click", function() {
+            var reportContainer = document.querySelector(".report-container");
+            if (reportContainer.style.display === "none") {
+                reportContainer.style.display = "block";
+            } else {
+                reportContainer.style.display = "none";
+            }
+        });
+        function toggleReportForm(type, id) {
+        var reportForm = document.getElementById('report-form-' + type + '-' + id);
+        if (reportForm.style.display === "none") {
+            reportForm.style.display = "block";
+        } else {
+            reportForm.style.display = "none";
+        }
+    }
+    </script>  
+</body>
+</html>

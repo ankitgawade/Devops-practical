@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if user.is_authenticated %}
+
+<h2>Anime List</h2>
+<div class="cards d-flex flex-row flex-wrap">
+  {% for anime in animes %}
+  <div class="card no-shadow rounded"
+       style="background-color:#121212;width:9rem;margin:10px;transition:all 0.3s;">
+    
+    <img class="card-img-top img-fluid rounded"
+         src="{{ anime.image_url }}"
+         alt="Anime Image">
+
+    <div class="card-body">
+      <p style="margin:0;overflow:hidden;font-size:20px;text-overflow:ellipsis;white-space:nowrap;">
+        <a href="{% url 'anime_page' anime.anime_id %}"
+           class="badge text-decoration-none">
+          {{ anime.name }}
+        </a>
+      </p>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+
+<div class="background"></div>
+<div class="card container justify-content-center"
+     style="margin-top:20px;padding:10px;background-color:#1c1c1c;color:#fff;">
+  
+  <h2>Login</h2>
+
+  <form method="POST" action="{% url 'home' %}">
+    {% csrf_token %}
+
+    <div class="user-box">
+      <label>Username</label><br>
+      <input name="username" type="text" required>
+    </div>
+
+    <div class="user-box">
+      <label>Password</label><br>
+      <input name="password" type="password" required>
+    </div>
+
+    <br>
+    <button type="submit" class="btn btn-danger">Submit</button>
+  </form>
+
+  <p>
+    Don't have an account?
+    <a href="{% url 'register' %}" class="btn btn-danger">Sign up!</a>
+  </p>
+
+</div>
+
+{% endif %}
+
+{% endblock %}
